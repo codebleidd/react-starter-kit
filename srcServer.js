@@ -1,34 +1,34 @@
-/* eslint-disable */
-var express = require('express')
-var path = require('path')
-var history = require('connect-history-api-fallback');
+import express from 'express'// eslint-disable-line
+// import path from 'path'
+import history from 'connect-history-api-fallback'// eslint-disable-line
 
-var port = 3000
-var app = express()
+import webpack from 'webpack'// eslint-disable-line
+import webpackHMR from 'webpack-hot-middleware'// eslint-disable-line
+import webpackDevMiddleware from 'webpack-dev-middleware'// eslint-disable-line
+
+import config from './webpack.config.dev'
+
+const APP_PORT = process.env.PORT || 3000
+const NODE_ENV = process.env.NODE_ENV || process.argv[2] || 'dev'
+const webpackConfig = config({ NODE_ENV: JSON.stringify(NODE_ENV) })
+const compiler = webpack(webpackConfig)
+
+const app = express()
 
 app.use(history())
-
-if (process.env.NODE_ENV !== 'production') {
-  console.log('Development mode')
-  var webpack = require('webpack')
-  var webpackHRM = require('webpack-hot-middleware')
-  var webpackDevMiddleware = require('webpack-dev-middleware')
-  var config = require('./webpack.config.dev')
-  var compiler = webpack(config)
-
-  app.use(webpackDevMiddleware(compiler, {
-    noInfo: true,
-    publicPath: config.output.publicPath
-  }))
-  app.use(webpackHRM(compiler))
-}
+app.use(webpackDevMiddleware(compiler, {
+  noInfo: true,
+  publicPath: webpackConfig.output.publicPath
+}))
+app.use(webpackHMR(compiler))
 
 // app.use(express.static(path.join(__dirname)))
 
-app.listen(port, function (err) {
+console.log('Development mode') // eslint-disable-line
+app.listen(APP_PORT, (err) => {
   if (err) {
-    console.log(err)
+    console.log(err)// eslint-disable-line
   } else {
-    console.log(`App running on http://localhost:${port}`)
+    console.log(`App running on http://localhost:${APP_PORT}`)// eslint-disable-line
   }
 })

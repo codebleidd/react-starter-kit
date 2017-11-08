@@ -1,0 +1,55 @@
+# This file is a template, and might need editing before it works on your project.
+# Official framework image. Look for the different tagged releases at:
+# https://hub.docker.com/r/library/node/tags/
+image: node:6.11.5
+
+stages:
+  - init
+  - tests
+  - deploy
+
+# Pick zero or more services to be used on all builds.
+# Only needed when using a docker container to run your tests in.
+# Check out: http://docs.gitlab.com/ce/ci/docker/using_docker_images.html#what-is-a-service
+services:
+
+# This folder is cached between builds
+# http://docs.gitlab.com/ce/ci/yaml/README.html#cache
+cache:
+  paths:
+  - node_modules/
+
+init:
+  stage: init
+  script:
+    - npm install
+
+tests:
+  stage: tests
+  script:
+   - npm test
+
+deploy_staging:
+  stage: deploy
+  script:
+    - git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/bring-a-drink-staging.git
+    - git push heroku master
+    - echo "Deployed to staging server"
+  environment:
+    name: staging
+    url: https://bring-a-drink-staging.herokuapp.com/
+  only:
+    - master
+
+deploy_production:
+  stage: deploy
+  script:
+    - git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/bring-a-drink.git
+    - git push heroku master
+    - echo "Deployed to production server"
+  environment:
+    name: production
+    url: https://bring-a-drink.herokuapp.com/
+  when: manual
+  only:
+    - master
